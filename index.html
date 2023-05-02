@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinate System</title>
+    <script src="main.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet">
+    <style>
+        *{
+            font-family: 'Lora', serif;
+        }
+
+        body {
+            padding: 1rem;
+        }
+
+        .difference-projector {
+            border: black solid 1px;
+            background-color: rgba(0, 128, 0, 0.484);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* CSS for Button */
+        .button-23 {
+          margin-bottom: 1rem;
+          background-color: #FFFFFF;
+          border: 1px solid #222222;
+          border-radius: 8px;
+          box-sizing: border-box;
+          color: #222222;
+          cursor: pointer;
+          display: inline-block;
+          font-family: Circular,-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",sans-serif;
+          font-size: 16px;
+          font-weight: 600;
+          line-height: 20px;
+          margin: 0;
+          outline: none;
+          padding: 13px 23px;
+          position: relative;
+          text-align: center;
+          text-decoration: none;
+          touch-action: manipulation;
+          transition: box-shadow .2s,-ms-transform .1s,-webkit-transform .1s,transform .1s;
+          user-select: none;
+          -webkit-user-select: none;
+          width: auto;
+        }
+
+        .button-23:focus-visible {
+          box-shadow: #222222 0 0 0 2px, rgba(255, 255, 255, 0.8) 0 0 0 4px;
+          transition: box-shadow .2s;
+        }
+
+        .button-23:active {
+          background-color: #F7F7F7;
+          border-color: #000000;
+          transform: scale(.96);
+        }
+
+        .button-23:disabled {
+          border-color: #DDDDDD;
+          color: #DDDDDD;
+          cursor: not-allowed;
+          opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="coordinate-presenter">
+        <h1>Coordinates Examples</h1>
+        <button id="generate-coordinate" class="button-23">Generate Coordinate</button>
+        <hr>
+    </div>
+
+    <script>
+        const coordinatePresenter = document.getElementById("coordinate-presenter");
+        coordinatePresenter.addEventListener('click', getLocation);
+        
+        const distanceDifference = document.getElementById("generate-distance-difference-between-last-coords");
+
+        var coordStorage = [];
+        var counterOfStorage = 0;
+
+        //Functions get and display location of user. 
+        function getLocation() {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+          } else { 
+            coordinatePresenter.innerHTML += "Geolocation is not supported by this browser.";
+          }
+        }
+
+        function measure(lat1, lon1, lat2, lon2){  // generally used geo measurement function
+            let R = 6378.137; // Radius of earth in KM
+            let dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+            let dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+            let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            let d = R * c;
+            return d * 1000; // meters
+        }
+        
+        function showPosition(position) {
+
+            if(counterOfStorage == 0) {
+                counterOfStorage++;
+                coordStorage[0] = position.coords.latitude;
+                coordStorage[1] = position.coords.longitude;
+
+                coordinatePresenter.innerHTML 
+                    += "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude + 
+                "<br>";
+
+                return;
+            }else {
+                counterOfStorage = 0;
+                coordStorage[2] = position.coords.latitude;
+                coordStorage[3] = position.coords.longitude;
+
+                coordinatePresenter.innerHTML 
+                    += "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude + 
+                    "<br><p class='difference-projector'>Difference: " + measure(coordStorage[0],coordStorage[1],coordStorage[2], coordStorage[3]) + "</p><br><br>";
+
+                return;
+            }
+        }
+    </script>
+</body>
+</html>
